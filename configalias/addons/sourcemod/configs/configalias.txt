@@ -1,0 +1,21 @@
+# RGL 6s Configs
+rgl_6s_5cp_gc          = rgl/6s_golden
+rgl_6s_5cp_match_half1 = rgl/6s_standard_h1
+rgl_6s_5cp_match_half2 = rgl/6s_standard_h2
+rgl_6s_koth            = rgl/6s_koth
+rgl_6s_koth_bo5        = rgl/6s_koth_bo5
+rgl_6s_koth_scrim      = rgl/6s_koth_bo5
+rgl_6s_5cp_gc          = rgl/6s_golden
+rgl_6s_5cp_scrim       = rgl/6s_scrim
+
+# RGL HL Configs
+rgl_hl_koth            = rgl/hl_koth
+rgl_hl_koth_bo5        = rgl/hl_koth_bo5
+rgl_hl_5cp             = rgl/hl_standard
+rgl_hl_stopwatch       = rgl/hl_stopwatch
+
+# RGL 7s Configs
+rgl_7s_koth            = rgl/7s_koth
+rgl_7s_koth_bo5        = rgl/7s_koth_bo5
+rgl_7s_5cp             = rgl/7s_standard
+rgl_7s_stopwatch       = rgl/7s_stopwatch
