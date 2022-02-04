@@ -75,6 +75,7 @@ Release notes:
 
 ---- 2.3.1 (03/02/2022) ----
 - cvar 'logstf_api_url'
+- Add game log lines for uploads
 
 
 TODO:
@@ -623,8 +624,10 @@ UploadLog(bool:partial) {
 		//CloseHandle(file);
 	}
 	
-	if (!partial)
+	if (!partial) {
 		CPrintToChatAll("%s", "{lightgreen}[LogsTF] {blue}Uploading logs...");
+		LogToGame("Logstf uploading %s", path);
+	}
 	
 	// Read g_hCvarApiUrl as string
 	decl String:apiUrl[64];
@@ -721,8 +724,10 @@ public bool:ParseLogsResponse(const char[] contents) {
 		
 		
 		// Call the global forward LogUploaded()
-		if (!g_bIsPartialUpload)
+		if (!g_bIsPartialUpload) {
 			CallLogUploaded(true, g_sCurrentLogID, g_sLastLogURL);
+			LogToGame("Logstf uploaded %s (%s)", g_sCurrentLogID, g_sLastLogURL);
+		}
 		
 		return true;
 	} else {
