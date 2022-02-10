@@ -75,8 +75,8 @@ Release notes:
 
 ---- 2.3.1 (03/02/2022) ----
 - cvar 'logstf_api_url'
-- Add game log lines for uploads
-
+- Add game log lines for uploads and match status
+- Add debug commands
 
 TODO:
 - Check if midgameupload works for mini-rounds
@@ -104,7 +104,6 @@ TODO:
 #define PLOG_PATH "logstf-partial.log"
 #define LOG_BUFFERSIZE 768 // I have seen log lines longer than 512
 #define LOG_BUFFERCNT 100
-
 
 public Plugin:myinfo = {
 	name = "Logs.TF Uploader",
@@ -156,6 +155,12 @@ public OnPluginStart() {
 	// Purpose: When an admin says !ul then upload logs and suppress the message
 	// Purpose: React when someone says .ss
 	RegConsoleCmd("say", Command_say);
+
+	#if defined _DEBUG
+	// Debug Command
+	// Purpose: Force set both team to ready state to start the match
+	RegConsoleCmd("rt", Command_ready_teams);
+	#endif
 	
 	// Remember handles to some cvars
 	g_hCvarHostname = FindConVar("hostname");
@@ -226,6 +231,8 @@ public OnPluginEnd() {
 // -----------------------------------
 
 StartMatch() {
+	LogToGame("[logs.tf] Match started");
+
 	FlushLog();
 	g_sLastLogURL = ""; // Avoid people typing .ss towards the end of the match, only to show the old stats
 	
@@ -267,6 +274,8 @@ StartMatch() {
 }
 
 ResetMatch() {
+	LogToGame("[logs.tf] Match reset");
+
 	if (g_hTimerUploadPartialLog != INVALID_HANDLE) {
 		KillTimer(g_hTimerUploadPartialLog);
 		g_hTimerUploadPartialLog = INVALID_HANDLE;
@@ -276,6 +285,8 @@ ResetMatch() {
 }
 
 EndMatch(bool:endedMidgame) {
+	LogToGame("[logs.tf] Match ended (midgame %d)", endedMidgame);
+
 	if (g_hTimerUploadPartialLog != INVALID_HANDLE) {
 		KillTimer(g_hTimerUploadPartialLog);
 		g_hTimerUploadPartialLog = INVALID_HANDLE;
@@ -409,7 +420,15 @@ public Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast) 
 // -----------------------------------
 
 
-
+#if defined _DEBUG
+public Action:Command_ready_teams(client, args) {
+	for(new i = 1; i <= MaxClients; i++)
+	{
+		GameRules_SetProp("m_bTeamReady", 1, .element=i);
+	}
+	CPrintToChatAll("[DEBUG] Both teams are set to ready state.");
+}
+#endif
 
 
 // -----------------------------------
@@ -626,7 +645,7 @@ UploadLog(bool:partial) {
 	
 	if (!partial) {
 		CPrintToChatAll("%s", "{lightgreen}[LogsTF] {blue}Uploading logs...");
-		LogToGame("Logstf uploading %s", path);
+		LogToGame("[logs.tf] Uploading %s", path);
 	}
 	
 	// Read g_hCvarApiUrl as string
@@ -726,7 +745,7 @@ public bool:ParseLogsResponse(const char[] contents) {
 		// Call the global forward LogUploaded()
 		if (!g_bIsPartialUpload) {
 			CallLogUploaded(true, g_sCurrentLogID, g_sLastLogURL);
-			LogToGame("Logstf uploaded %s (%s)", g_sCurrentLogID, g_sLastLogURL);
+			LogToGame("[logs.tf] Uploaded %s (%s)", g_sCurrentLogID, g_sLastLogURL);
 		}
 		
 		return true;
