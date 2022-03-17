@@ -8,7 +8,7 @@ public Plugin:myinfo =
 	name = "Map Downloader",
 	author = "Icewind, Modified by PepperKick",
 	description = "Automatically download missing maps",
-	version = "0.1.2",
+	version = "1.2.0",
 	url = "https://spire.tf"
 };
 
@@ -26,12 +26,18 @@ new CURL_Default_opt[][2] = {
 #define CURL_DEFAULT_OPT(%1) curl_easy_setopt_int_array(%1, CURL_Default_opt, sizeof(CURL_Default_opt))
 
 new Handle:configFileHandle = INVALID_HANDLE;
+new bool:inUse = false;
 
 public OnPluginStart() {
 	RegServerCmd("changelevel", HandleChangeLevelAction);
 }
 
 public Action:HandleChangeLevelAction(args) {
+	if (inUse) {
+		PrintToChatAll("A map is already being downloaded, please wait");
+		return Plugin_Handled;
+	}
+
 	new String:arg[128];
 	GetCmdArg(1, arg, sizeof(arg));
 
@@ -64,6 +70,7 @@ public StartMapDownload(String:map[128], String:targetPath[128]) {
 	decl String:fullUrl[512];
 	decl String:BaseUrl[256];
 
+	inUse = true;
 	if (!IsEndOfFile(configFileHandle) && ReadFileLine(configFileHandle, BaseUrl, sizeof(BaseUrl))) {
 		new Handle:curl = curl_easy_init();
 		new Handle:output_file = curl_OpenFile(targetPath, "wb");
@@ -116,6 +123,8 @@ public onComplete(Handle:hndl, CURLcode:code, any hDLPack) {
 			StartMapDownload(map, targetPath);
 			return;
 		}
+
+		inUse = false;
 		PrintToChatAll("Successfully downloaded map %s", map);
 		changeLevel(map);
 	}
