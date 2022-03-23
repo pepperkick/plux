@@ -8,7 +8,7 @@ public Plugin:myinfo =
 	name = "Map Downloader",
 	author = "Icewind, Modified by PepperKick",
 	description = "Automatically download missing maps",
-	version = "1.2.0",
+	version = "1.2.1",
 	url = "https://spire.tf"
 };
 
@@ -34,7 +34,7 @@ public OnPluginStart() {
 
 public Action:HandleChangeLevelAction(args) {
 	if (inUse) {
-		PrintToChatAll("A map is already being downloaded, please wait");
+		PrintToChatAll("A map is already downloading, please wait");
 		return Plugin_Handled;
 	}
 
@@ -90,6 +90,8 @@ public StartMapDownload(String:map[128], String:targetPath[128]) {
 		curl_easy_setopt_handle(curl, CURLOPT_WRITEDATA, output_file);
 		curl_easy_setopt_string(curl, CURLOPT_URL, fullUrl);
 		curl_easy_perform_thread(curl, onComplete, hDLPack);
+	} else {
+		inUse = true;
 	}
 }
 
